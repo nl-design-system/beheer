@@ -17,5 +17,11 @@
     "type": "git+ssh",
     "url": "git@github.com:nl-design-system/beheer.git",
     "directory": "."
+  },
+  "scripts": {
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1"
   }
 }

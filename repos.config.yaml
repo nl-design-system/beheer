@@ -1,0 +1,27 @@
+repos:
+  # kernteam
+  - architectuur
+  - basis
+  - candidate
+  - documentatie
+  - example
+  - example-with-angular
+  - gebruikersonderzoeken
+  - hall-of-fame
+  - icons
+  - index
+  - terraform
+  - themes
+  - wcag-statistieken
+  # expertteam
+  - editor
+  - theme-wizard
+  # community
+  - denhaag
+  - lux
+  - mijn-services
+  - rijkshuisstijl-community
+  - rotterdam
+  - rvo
+  - tilburg
+  - utrecht

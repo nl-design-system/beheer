@@ -29,3 +29,11 @@ Obviously, you can add/refresh the token, but OIDC does not need a token.
 
 - https://docs.npmjs.com/trusted-publishers
 - https://docs.github.com/en/actions/concepts/security/openid-connect
+
+## Git
+
+### Possible errors
+
+> Error: fatal: could not read Username for '[https://github.com](https://github.com/)': terminal prompts disabled
+
+- Check that it is not overridden by an environment variable or secret. `GITHUB_TOKEN` is automatically passed by GitHub Actions with permissions as specified in the workflow file.

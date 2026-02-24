@@ -19,6 +19,12 @@
   - this is either set with `package.json#publishConfig.provenance`, `NPM_CONFIG_PROVENANCE`. or `.npmrc#provenance`
   - pnpm uses npm under the hood so that will work. But older lerna/lerna-lite uses libnpm and that will fail.
 
+> 🦋 error npm notice Access token expired or revoked. Please try logging in again.
+
+Obviously, you can add/refresh the token, but OIDC does not need a token.
+
+- check that OIDC is configured on npmjs.org
+
 ### Resources
 
 - https://docs.npmjs.com/trusted-publishers

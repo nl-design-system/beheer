@@ -51,6 +51,18 @@ const loadVersionsCache = async () => {
 };
 
 /**
+ * Load cache from file and return a copy of the version cache (cache-only, no fetch).
+ * Use this when you need all cached versions, e.g. for reporting without --fetch.
+ *
+ * @returns {Promise<Map<string, string|null>>}
+ */
+export const getVersionsCache = async () => {
+  await loadVersionsCache();
+
+  return new Map(versionCache);
+};
+
+/**
  * Save versions cache to the cache file.
  *
  * @returns {Promise<void>}
@@ -113,6 +125,14 @@ const compareVersions = (a, b) => {
 };
 
 /**
+ * Detect if the GitHub API response indicates a rate limit error.
+ *
+ * @param {Response} response
+ * @returns {boolean}
+ */
+const isRateLimitError = (response) => response.status === 403;
+
+/**
  * Fetch the latest version of a GitHub Action from the GitHub API.
  *
  * @param {string} action - Action name (e.g., 'actions/checkout')
@@ -134,6 +154,10 @@ export const fetchLatestGitHubActionVersion = async (action) => {
       },
     });
 
+    if (isRateLimitError(tagsResponse)) {
+      return null;
+    }
+
     if (tagsResponse.ok) {
       const tags = await tagsResponse.json();
       if (tags && tags.length > 0) {
@@ -146,9 +170,11 @@ export const fetchLatestGitHubActionVersion = async (action) => {
           .filter((v) => v.parsed !== null); // Only keep valid semantic versions
 
         if (parsedVersions.length > 0) {
-          // Sort by version (latest first)
-          parsedVersions.sort((a, b) => compareVersions(a.parsed, b.parsed));
-          const latestTag = parsedVersions[0].name;
+          // Prefer latest stable; ignore prereleases (e.g. v3.0.0-beta.1) when a stable exists (e.g. v2.2.1)
+          const stableOnly = parsedVersions.filter((v) => v.parsed.prerelease === null);
+          const candidates = stableOnly.length > 0 ? stableOnly : parsedVersions;
+          candidates.sort((a, b) => compareVersions(a.parsed, b.parsed));
+          const latestTag = candidates[0].name;
           versionCache.set(action, latestTag);
           await saveVersionsCache();
           return latestTag;
@@ -170,6 +196,10 @@ export const fetchLatestGitHubActionVersion = async (action) => {
       },
     });
 
+    if (isRateLimitError(response)) {
+      return null;
+    }
+
     if (response.ok) {
       const data = await response.json();
       const latestVersion = data.tag_name;
@@ -185,8 +215,11 @@ export const fetchLatestGitHubActionVersion = async (action) => {
     return null;
   } catch (error) {
     console.error(`Error fetching version for ${action}:`, error.message);
-    versionCache.set(action, null);
-    await saveVersionsCache();
+    const rateLimited = /rate limit/i.test(error.message ?? '');
+    if (!rateLimited) {
+      versionCache.set(action, null);
+      await saveVersionsCache();
+    }
 
     return null;
   }

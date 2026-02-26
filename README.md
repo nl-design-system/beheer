@@ -10,7 +10,7 @@ This repository is primarily used for:
 
 # Maintenance scripts
 
-This repo assumes it is checked out in the same folder, alongside other repos.
+Run the scripts from the root folder in which all your checked-out repositories are stored.
 
 - `scripts/checkout.sh`: checkout main branch in all repos and pull latest
 - `scripts/status.sh`: for each repo, output the current branch and commit status

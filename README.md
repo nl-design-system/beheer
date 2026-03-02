@@ -19,3 +19,4 @@ Run the scripts from the root folder in which all your checked-out repositories 
 # Maintenance docs
 
 - [Troubleshooting GitHub Actions](docs/troubleshooting-github-actions.md)
+- [Sending a Slack notification in GitHub Actions](docs/slack-notifications.md)

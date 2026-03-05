@@ -27,8 +27,8 @@ Obviously, you can add/refresh the token, but OIDC does not need a token.
 
 ### Resources
 
-- https://docs.npmjs.com/trusted-publishers
-- https://docs.github.com/en/actions/concepts/security/openid-connect
+- [https://docs.npmjs.com/trusted-publishers](https://docs.npmjs.com/trusted-publishers)
+- [https://docs.github.com/en/actions/concepts/security/openid-connect](https://docs.github.com/en/actions/concepts/security/openid-connect)
 
 ## Git
 

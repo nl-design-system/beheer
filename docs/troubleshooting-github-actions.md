@@ -25,6 +25,16 @@ Obviously, you can add/refresh the token, but OIDC does not need a token.
 
 - check that OIDC is configured on npmjs.org
 
+> 🦋  error npm error 403 403 Forbidden - PUT https://registry.npmjs.org/@nl-design-system%2fmy-package - You cannot publish over the previously published versions: 1.0.0.
+
+- It is possible that the package was published and then unpublished.
+  You will not be able to reuse that version and you have to bump the version.
+  You can see whether a package was unpublished if it does not appear in `npm view <package> versions` but does appear in `npm view <package> time`.
+- In rare cases, publish to npm will succeed, but something else in the same step will fail (like creating a release in GitHub; we had an unexplainable `HttpError` once).
+  It can take up to an hour before [npmjs.org](npmjs.org) and `npm view` show newly-published packages, and one may be inclined to rerun the failed job.
+  Rerunning the job would then yield the above error.
+  Inspect the first job to see if the actual publish succeeded.
+
 ### Resources
 
 - [https://docs.npmjs.com/trusted-publishers](https://docs.npmjs.com/trusted-publishers)

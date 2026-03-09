@@ -14,7 +14,7 @@ is_git_repo() {
 
 # Check if the working tree is clean
 is_clean() {
-  git -C "${1:-.}" status --porcelain | grep -q '^[^?]'
+  ! git -C "${1:-.}" status --porcelain | grep -q '^[^?]'
 }
 
 # Get the main branch of a git repository; for some repos this can be "master"

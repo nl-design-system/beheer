@@ -62,14 +62,16 @@ for dir in $DIRS; do
 
         # Check if we should auto-pull: on main, clean, and behind
         if [ "$is_on_main" == "Yes" ] && [ "$clean_status" == "Clean" ] && [[ "$commit_status" == *"Behind"* ]]; then
-            cd "$dir" || continue
-            echo -e "${BLUE}Pulling $name...${NC}"
-            git pull > /dev/null 2>&1
-            if [ $? -eq 0 ]; then
-                # Refresh status after pull
-                status_info=$(get_git_status "$dir")
-                IFS='|' read -r name branch is_on_main clean_status commit_status <<< "$status_info"
-            fi
+            (
+                cd "$dir" || continue
+                echo -e "${BLUE}Pulling $name...${NC}"
+                git pull > /dev/null 2>&1
+                if [ $? -eq 0 ]; then
+                    # Refresh status after pull
+                    status_info=$(get_git_status "$dir")
+                    IFS='|' read -r name branch is_on_main clean_status commit_status <<< "$status_info"
+                fi
+            )
         fi
 
         [ "$is_on_main" == "Yes" ] && main_color="${GREEN}" || main_color="${YELLOW}"

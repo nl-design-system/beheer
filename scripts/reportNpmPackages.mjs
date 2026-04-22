@@ -220,6 +220,16 @@ const reportResults = ({ results }) => {
       version: p.version,
     })),
   );
+
+  const withoutEUPL = results.filter((p) => p.license !== 'EUPL-1.2');
+  console.log('\nPackages without EUPL license:\n');
+  console.table(
+    withoutEUPL.map((p) => ({
+      name: p.name,
+      version: p.version,
+      license: p.license,
+    })),
+  );
 };
 
 const main = async () => {

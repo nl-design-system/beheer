@@ -25,3 +25,15 @@ repos:
   - rvo
   - tilburg
   - utrecht
+
+npmOrgs:
+  - "@amsterdam"
+  - "@gemeente-denhaag"
+  - "@gemeente-rotterdam"
+  - "@nl-design-system"
+  - "@nl-design-system-candidate"
+  - "@nl-design-system-community"
+  - "@nl-design-system-unstable"
+  - "@nl-rvo"
+  - "@rijkshuisstijl-community"
+  - "@utrecht"

@@ -18,7 +18,7 @@ import { z } from 'zod';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPOS_CONFIG_FILE = path.join(__dirname, '../repos.config.yaml');
-const CACHE_DIR = path.join(__dirname, 'cache');
+const CACHE_DIR = path.join(__dirname, '../tmp/cache');
 const CACHE_FILE = path.join(CACHE_DIR, 'npm-packages.yaml');
 const MAX_RETRIES = 3;
 

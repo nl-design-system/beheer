@@ -8,13 +8,10 @@ This repository is primarily used for:
 - **Maintenance scripts**: scripts and automation tools that aid in propagating changes efficiently across multiple repositories. Note: these scripts are primarily intended for internal use and may not be fully documented or supported for external contributors.
 - **Maintenance knowledge base**: technical notes to support maintenance tasks. Note: whenever possible, documenting things on [the website](https://nldesignsystem.nl) instead is preferred.
 
-# Maintenance scripts
+## Maintenance docs
 
-Run the scripts from the root folder in which all your checked-out repositories are stored.
-
-- `scripts/checkout.sh`: checkout main branch in all repos and pull latest
-- `scripts/status.sh`: for each repo, output the current branch and commit status
-- `scripts/open-prs.sh`: for each repo, list all your PRs that are still open
+- [Troubleshooting GitHub Actions](docs/troubleshooting-github-actions.md)
+- [Sending a Slack notification in GitHub Actions](docs/slack-notifications.md)
 
 ## Taskfile
 
@@ -69,8 +66,3 @@ This will allow you to run `task` in the CLI.
 With the above example, you can type `task checkout`, a "global" task from `Taskfile.dist.yml`, to checkout the branch as specified in `vars.BRANCH`.
 And `task apply` would apply the changes from your taskfile.
 The idea is to have a taskfile per task you're working on.
-
-# Maintenance docs
-
-- [Troubleshooting GitHub Actions](docs/troubleshooting-github-actions.md)
-- [Sending a Slack notification in GitHub Actions](docs/slack-notifications.md)

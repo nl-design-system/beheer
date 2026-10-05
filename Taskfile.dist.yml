@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+tasks:
+  checkout:
+    desc: Checkout the branch
+    aliases: [co]
+    dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [BRANCH]
+    preconditions:
+      - sh: git rev-parse --show-toplevel >/dev/null 2>&1 && [ "$(git rev-parse --show-toplevel)" = "$(pwd)" ]
+        msg: Must be run from the root of a git repository
+    cmds:
+      - git checkout -b "{{.BRANCH}}"
+
+  pr:
+    desc: Push and create a pull request
+    dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [PR_TITLE]
+    # Pass title/body via env so the shell never parses user text (e.g. backticks) as command substitution.
+    env:
+      PR_TITLE: "{{.PR_TITLE}}"
+      PR_BODY: "{{.PR_BODY}}"
+    preconditions:
+      - sh: git rev-parse --show-toplevel >/dev/null 2>&1 && [ "$(git rev-parse --show-toplevel)" = "$(pwd)" ]
+        msg: Must be run from the root of a git repository
+    cmds:
+      - git push
+      - |
+        if [ -n "${PR_BODY:-}" ]; then
+          gh pr create --title="$PR_TITLE" --body "$PR_BODY"
+        else
+          gh pr create --title="$PR_TITLE"
+        fi
+
+  pr2:
+    desc: Create a pull request and append it to an issue checklist
+    dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [PR_TITLE, GH_ISSUE]
+    env:
+      PR_TITLE: "{{.PR_TITLE}}"
+      PR_BODY: "{{.PR_BODY}}"
+    preconditions:
+      - sh: git rev-parse --show-toplevel >/dev/null 2>&1 && [ "$(git rev-parse --show-toplevel)" = "$(pwd)" ]
+        msg: Must be run from the root of a git repository
+    cmds:
+      - git push
+      - |
+        set -eu
+        if [ -n "${PR_BODY:-}" ]; then
+          pr=$(gh pr create --title="$PR_TITLE" --body "$PR_BODY" | tee /dev/tty)
+        else
+          pr=$(gh pr create --title="$PR_TITLE" | tee /dev/tty)
+        fi
+
+        previous_body=$(gh issue view "{{.GH_ISSUE}}" --json comments --jq '.comments | if length > 0 then .[-1].body else "" end' 2>/dev/null || true)
+        if [ -n "$previous_body" ]; then
+          combined_body="${previous_body}"$'\n'"- ${pr}"
+        else
+          combined_body="- ${pr}"
+        fi
+
+        gh issue comment "{{.GH_ISSUE}}" --body="$combined_body" --edit-last --create-if-none
+
+  update-issue-with-pr:
+    desc: Append text as checklist item to the issue's last comment
+    dir: "{{.USER_WORKING_DIR}}"
+    requires:
+      vars: [GH_ISSUE, NEXT_BODY]
+    preconditions:
+      - sh: git rev-parse --show-toplevel >/dev/null 2>&1 && [ "$(git rev-parse --show-toplevel)" = "$(pwd)" ]
+        msg: Must be run from the root of a git repository
+    cmds:
+      - |
+        previous_body=$(gh issue view "{{.GH_ISSUE}}" --json comments --jq '.comments | if length > 0 then .[-1].body else "" end' 2>/dev/null || true)
+        if [ -n "$previous_body" ]; then
+          combined_body="${previous_body}"$'\n'"- [ ] {{.NEXT_BODY}}"
+        else
+          combined_body="{{.NEXT_BODY}}"
+        fi
+        gh issue comment "{{.GH_ISSUE}}" --body="$combined_body" --edit-last --create-if-none

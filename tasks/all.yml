@@ -1,0 +1,188 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  REPOS:
+    # kernteam
+    - architectuur
+    - basis
+    - candidate
+    - documentatie
+    - example
+    - example-with-angular
+    - gebruikersonderzoeken
+    - hall-of-fame
+    - icons
+    - index
+    - terraform
+    - themes
+    - wcag-statistieken
+    # expertteam
+    - editor
+    - theme-wizard
+    # community
+    - denhaag
+    - lux
+    - mijn-services
+    - rijkshuisstijl-community
+    - rotterdam
+    - rvo
+    - tilburg
+    - utrecht
+  REPO_INDEX: 0
+
+tasks:
+  list:
+    desc: List all repos
+    dir: ".."
+    silent: true
+    requires:
+      vars: [REPOS]
+    cmds:
+      - for:
+          var: REPOS
+        cmd: |
+          echo "{{.ITEM}}"
+
+  git-status:
+    desc: Show the status of all repos
+    dir: ".."
+    requires:
+      vars: [REPOS]
+    cmds:
+      - for:
+          var: REPOS
+        cmd: |
+          cd "{{.ITEM}}"
+          git status
+          cd ..
+
+  git-diff:
+    desc: Show the diff of all repos
+    dir: ".."
+    silent: true
+    requires:
+      vars: [REPOS]
+    cmds:
+      - for:
+          var: REPOS
+        cmd: |
+          cd "{{.ITEM}}"
+          git diff
+          cd ..
+
+  main:
+    desc: Checkout the main branch of all repos
+    dir: ".."
+    silent: true
+    requires:
+      vars: [REPOS]
+    cmds:
+      - for:
+          var: REPOS
+        cmd: |
+          pwd
+          cd "{{.ITEM}}"
+          MAIN_BRANCH=$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')
+          if [ -z "$MAIN_BRANCH" ]; then
+            if git show-ref --verify --quiet refs/heads/main; then
+              MAIN_BRANCH=main
+            elif git show-ref --verify --quiet refs/heads/master; then
+              MAIN_BRANCH=master
+            else
+              echo "Could not determine main branch for {{.ITEM}}, skipping."
+              cd ..
+              exit 0
+            fi
+          fi
+          echo "Checking out {{.ITEM}} on branch $MAIN_BRANCH"
+          git checkout "$MAIN_BRANCH"
+          git pull --ff-only --no-stat
+          cd ..
+
+  audit:
+    desc: Audit all repos
+    dir: ".."
+    requires:
+      vars: [REPOS]
+    cmds:
+      - for:
+          var: REPOS
+        cmd: |
+          cd "{{.ITEM}}"
+          pnpm audit --audit-level=critical
+          cd ..
+        ignore_error: true
+
+  cycle:
+    desc: |
+      Walk repos (by typing: next) in repos order. Run as: eval "$(task all:cycle)"
+    dir: ".."
+    silent: true
+    requires:
+      vars: [REPOS]
+    cmds:
+      - |
+        ROOT="$(pwd -P)"
+        REPO_STACK="{{- range $i, $repo := .REPOS }}{{ if $i }}{{ "\n" }}{{ end }}{{ $repo }}{{ end }}"
+        {
+          bash -c 'printf "export REPOS_ROOT=%q\nexport REPO_STACK=%q\n" "$1" "$2"' _ "$ROOT" "$REPO_STACK"
+          printf '%s\n' \
+            'next() {' \
+            '  _repo_stack="${REPO_STACK:-}"' \
+            '  _repo_root="${REPOS_ROOT:-}"' \
+            '  if [ -z "$_repo_root" ]; then' \
+            '    echo "cycle: REPOS_ROOT unset (run cycle via eval)" >&2' \
+            '    return 1' \
+            '  fi' \
+            '  if [ -z "$_repo_stack" ]; then' \
+            '    echo "cycle: stack empty (no more repos)"' \
+            '    return 0' \
+            '  fi' \
+            '  _repo=$(printf '\''%s\n'\'' "$_repo_stack" | head -n 1)' \
+            '  export REPO_STACK="$(printf '\''%s\n'\'' "$_repo_stack" | tail -n +2)"' \
+            '  if [ -z "${REPO_STACK}" ]; then' \
+            '    _left=0' \
+            '  else' \
+            '    _left=$(printf '\''%s\n'\'' "${REPO_STACK}" | wc -l | tr -d " ")' \
+            '  fi' \
+            '  cd "$_repo_root/$_repo" && echo "cycle: cd $_repo ($_left left)"' \
+            '}'
+          echo 'next "$@"'
+        }
+
+  gh-browse:
+    desc: Open the browser for all repos
+    dir: ".."
+    requires:
+      vars: [REPOS]
+    cmds:
+      - for:
+          var: REPOS
+        cmd: |
+          # open "https://github.com/nl-design-system/{{.ITEM}}"
+          # open "https://github.com/nl-design-system/{{.ITEM}}/pulls"
+          # open "https://github.com/nl-design-system/{{.ITEM}}/security/code-scanning"
+          # open "https://github.com/nl-design-system/{{.ITEM}}/security/dependabot?q=is%3Aopen+sort%3Aseverity"
+
+  open-prs:
+    desc: Gather all open PRs into a file (one link per line)
+    dir: ".."
+    silent: true
+    requires:
+      vars: [REPOS]
+    vars:
+      OUT: '{{.OUT | default "beheer/tmp/open-prs.txt"}}'
+    cmds:
+      - mkdir -p "$(dirname "{{.OUT}}")"
+      - 'true > "{{.OUT}}"'
+      - for:
+          var: REPOS
+        cmd: |
+          (
+            cd "{{.ITEM}}" || exit 0
+            gh pr list --state open --limit 1000 --json url,number,title,author --jq '.[] | "\(.url) #\(.number) \(.title) (\(.author.login))"'
+          ) >> "{{.OUT}}"
+        ignore_error: true
+      - 'echo "Wrote $(wc -l < "{{.OUT}}" | tr -d " ") open PRs to {{.OUT}}"'

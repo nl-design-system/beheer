@@ -39,6 +39,21 @@ includes:
 EOF
 ```
 
+Also initialize a `Taskfile.yml` in the parent folder, assuming that's where all checked-out repositories are stored (this will allow you to use `beheer`'s Taskfile in all repos):
+
+```sh
+cat > ../Taskfile.yml <<'EOF'
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+includes:
+  beheer:
+    taskfile: ./beheer/Taskfile.yml
+    flatten: true
+EOF
+```
+
 Create a task in the `tasks/` folder. For example:
 
 ```yaml

@@ -16,6 +16,60 @@ Run the scripts from the root folder in which all your checked-out repositories 
 - `scripts/status.sh`: for each repo, output the current branch and commit status
 - `scripts/open-prs.sh`: for each repo, list all your PRs that are still open
 
+## Taskfile
+
+We use Taskfile to simplify running tasks across repos.
+
+Install it following the [instructions](https://taskfile.dev/docs/installation).
+
+Then initialize a `Taskfile.yml` as follows:
+
+```sh
+cat > Taskfile.yml <<'EOF'
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+includes:
+  lib:
+    taskfile: ./Taskfile.dist.yml
+    flatten: true
+  all:
+    taskfile: ./tasks/all.yml
+  current:
+    taskfile: ./tasks/REPLACE-ME.yml
+    flatten: true
+EOF
+```
+
+Create a task in the `tasks/` folder. For example:
+
+```yaml
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+vars:
+  BRANCH: chore/pnpm-11.15.1
+  PR_TITLE: 'chore: upgrade pnpm to 11.15.1'
+  PR_BODY: |
+    This PR upgrades pnpm to the latest version.  We currently pin 11.5 but there has been a lot of development since then.  Check out their [changelogs](https://pnpm.io/blog/releases/11.6).  Notable changes are minor security improvements and a bugfix that affected [lux](https://github.com/nl-design-system/lux/pull/650).
+  GH_ISSUE: 'https://github.com/nl-design-system/beheer/issues/87'
+
+tasks:
+  apply:
+    desc: Apply changes
+    aliases: [a]
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - corepack use pnpm@11
+```
+
+This will allow you to run `task` in the CLI.
+With the above example, you can type `task checkout`, a "global" task from `Taskfile.dist.yml`, to checkout the branch as specified in `vars.BRANCH`.
+And `task apply` would apply the changes from your taskfile.
+The idea is to have a taskfile per task you're working on.
+
 # Maintenance docs
 
 - [Troubleshooting GitHub Actions](docs/troubleshooting-github-actions.md)

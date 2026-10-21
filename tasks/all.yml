@@ -48,6 +48,7 @@ tasks:
   git-status:
     desc: Show the status of all repos
     dir: ".."
+    silent: true
     requires:
       vars: [REPOS]
     cmds:
@@ -55,6 +56,7 @@ tasks:
           var: REPOS
         cmd: |
           cd "{{.ITEM}}"
+          echo "{{.ITEM}}"
           git status
           cd ..
 
@@ -104,6 +106,7 @@ tasks:
   audit:
     desc: Audit all repos
     dir: ".."
+    silent: true
     requires:
       vars: [REPOS]
     cmds:
@@ -111,6 +114,7 @@ tasks:
           var: REPOS
         cmd: |
           cd "{{.ITEM}}"
+          echo "Auditing {{.ITEM}}"
           pnpm audit --audit-level=critical
           cd ..
         ignore_error: true
@@ -168,18 +172,33 @@ tasks:
         }
 
   gh-browse:
-    desc: Open the browser for all repos
+    desc: |
+      Open the browser for all repos. Usage: task all:gh-browse [-- prs|dependabot-prs|code-scanning|dependabot]
     dir: ".."
+    silent: true
     requires:
       vars: [REPOS]
     cmds:
       - for:
           var: REPOS
         cmd: |
-          # open "https://github.com/nl-design-system/{{.ITEM}}"
-          # open "https://github.com/nl-design-system/{{.ITEM}}/pulls"
-          # open "https://github.com/nl-design-system/{{.ITEM}}/security/code-scanning"
-          # open "https://github.com/nl-design-system/{{.ITEM}}/security/dependabot?q=is%3Aopen+sort%3Aseverity"
+          case "{{.CLI_ARGS}}" in
+            prs)
+              open "https://github.com/nl-design-system/{{.ITEM}}/pulls"
+              ;;
+            dependabot-prs)
+              open "https://github.com/nl-design-system/{{.ITEM}}/pulls?q=is%3Apr+state%3Aopen+author%3Aapp%2Fdependabot"
+              ;;
+            code-scanning)
+              open "https://github.com/nl-design-system/{{.ITEM}}/security/code-scanning"
+              ;;
+            dependabot)
+              open "https://github.com/nl-design-system/{{.ITEM}}/security/dependabot?q=is%3Aopen+sort%3Aseverity"
+              ;;
+            *)
+              open "https://github.com/nl-design-system/{{.ITEM}}"
+              ;;
+          esac
 
   open-prs:
     desc: Gather all open PRs into a file (one link per line)

@@ -115,6 +115,21 @@ tasks:
           cd ..
         ignore_error: true
 
+  pnpm-ls:
+    desc: |
+      Run pnpm ls on all repos. Example usage: task all:pnpm-ls -- "react*@<19"
+    dir: ".."
+    silent: true
+    requires:
+      vars: [REPOS]
+    cmds:
+      - for:
+          var: REPOS
+        cmd: |
+          cd "{{.ITEM}}"
+          pnpm ls --depth 0 {{.CLI_ARGS}}
+          cd ..
+
   cycle:
     desc: |
       Walk repos (by typing: next) in repos order. Run as: eval "$(task all:cycle)"

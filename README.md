@@ -18,6 +18,6 @@ Run the scripts from the root folder in which all your checked-out repositories 
 
 # Maintenance & how-tos
 
-- [Troubleshooting GitHub Actions](docs/troubleshooting-github-actions.md)
+- [Troubleshooting GitHub Actions publish errors](docs/troubleshooting-github-actions.md)
 - [Sending a Slack notification in GitHub Actions](docs/slack-notifications.md)
 - [Troubleshooting Chromatic fails on fork PRs](docs/chromatic-fails-on-fork-prs.md)

@@ -16,7 +16,8 @@ Run the scripts from the root folder in which all your checked-out repositories 
 - `scripts/status.sh`: for each repo, output the current branch and commit status
 - `scripts/open-prs.sh`: for each repo, list all your PRs that are still open
 
-# Maintenance docs
+# Maintenance & how-tos
 
 - [Troubleshooting GitHub Actions](docs/troubleshooting-github-actions.md)
 - [Sending a Slack notification in GitHub Actions](docs/slack-notifications.md)
+- [Troubleshooting Chromatic fails on fork PRs](docs/chromatic-fails-on-fork-prs.md)

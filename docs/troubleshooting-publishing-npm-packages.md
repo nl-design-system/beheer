@@ -11,7 +11,7 @@
 Packages are published with OIDC. Is OIDC configured properly on npmjs.org?
 
 - the repository name must match
-- the environment must match the environment used in the GitHub Action (case sensitive!)
+- the environment must match the environment used in the GitHub Action (**case sensitive** - for the OIDC connection to succeed, the environment configured on npm must match what is in the YAML file)
 - the path to the `publish.yml` file must match; double check the extension
 
 OIDC does not work for the first publish. That needs to be done with an old-fashioned npm token.

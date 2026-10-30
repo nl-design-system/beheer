@@ -46,6 +46,14 @@ Obviously, you can add/refresh the token, but OIDC does not need a token.
   Rerunning the job would then yield the above error.
   Inspect the first job to see if the actual publish succeeded.
 
+> E403: 403 Forbidden - PUT https://registry.npmjs.org/@nl-design-system%2fmy-package - Two-factor authentication is required to publish this package but an automation token was specified
+
+It is possible that OIDC was setup on npm, but the connection was not validated in time.
+
+Whenever OIDC is setup for the first time for a package, a second publish is needed to validate the connection.
+This must be done in 48 hours.
+When this period expires without validation, this error may occur.
+
 #### Could not read Username
 
 > Error: fatal: could not read Username for '[https://github.com](https://github.com/)': terminal prompts disabled

@@ -52,6 +52,15 @@ Obviously, you can add/refresh the token, but OIDC does not need a token.
 
 - Check that it is not overridden by an environment variable or secret. `GITHUB_TOKEN` is automatically passed by GitHub Actions with permissions as specified in the workflow file.
 
+#### The publish step runs but it doesn't actually try to publish
+
+> All files have been updated. Review them and commit at your leisure
+
+There might be a leftover changeset for a non-existing package or a private package in the `.changesets` folder.
+For example, this could happen if a package was later set to `"private": true` or removed.
+
+Ensure that changesets do not contain non-existing or private packages.
+
 ### Resources
 
 - [https://docs.npmjs.com/trusted-publishers](https://docs.npmjs.com/trusted-publishers)

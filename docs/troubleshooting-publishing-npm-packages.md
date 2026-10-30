@@ -1,4 +1,4 @@
-# Troubleshooting errors in GitHub Actions while publishing
+# Troubleshooting publishing npm packages with GitHub Actions
 
 ## Publishing
 
@@ -25,7 +25,7 @@ Obviously, you can add/refresh the token, but OIDC does not need a token.
 
 - check that OIDC is configured on npmjs.org
 
-> 🦋  error npm error 403 403 Forbidden - PUT https://registry.npmjs.org/@nl-design-system%2fmy-package - You cannot publish over the previously published versions: 1.0.0.
+> 🦋 error npm error 403 403 Forbidden - PUT https://registry.npmjs.org/@nl-design-system%2fmy-package - You cannot publish over the previously published versions: 1.0.0.
 
 - It is possible that the package was published and then unpublished.
   You will not be able to reuse that version and you have to bump the version.

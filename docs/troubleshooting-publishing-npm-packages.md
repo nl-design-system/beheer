@@ -1,16 +1,23 @@
-# Troubleshooting errors in GitHub Actions while publishing
+# Troubleshooting publishing npm packages with GitHub Actions
 
 ## Publishing
 
 ### Possible errors
 
+#### E404 Not Found - PUT
+
 > 🦋 error an error occurred while publishing @nl-design-system/my-package: E404 Not Found - PUT [https://registry.npmjs.org/@nl-design-system%2fmy-package](https://registry.npmjs.org/@nl-design-system%2fmy-package) - Not found
 
-- Packages are published with OIDC. Is OIDC configured properly on npmjs.org?
-  - the repository name must match
-  - the environment must match the environment used in the GitHub Action (case sensitive!)
-  - the path to the `publish.yml` file must match; double check the extension
-- OIDC does not work for the first publish. That needs to be done with an old-fashioned npm token.
+Packages are published with OIDC. Is OIDC configured properly on npmjs.org?
+
+- the repository name must match
+- the environment must match the environment used in the GitHub Action (**case sensitive** - for the OIDC connection to succeed, the environment configured on npm must match what is in the YAML file)
+- the path to the `publish.yml` file must match; double check the extension
+
+OIDC does not work for the first publish. That needs to be done with an old-fashioned npm token.
+
+Check other settings:
+
 - OIDC publishing requires Node 24 - older versions don't work
   - check `.nvmrc` and that `actions/setup-node` uses this
   - npm must be 11.5+ (you can see this in logs, under `actions/setup-node` under Environment details)
@@ -19,13 +26,17 @@
   - this is either set with `package.json#publishConfig.provenance`, `NPM_CONFIG_PROVENANCE`. or `.npmrc#provenance`
   - pnpm uses npm under the hood so that will work. But older lerna/lerna-lite uses libnpm and that will fail.
 
+#### Access token expired or revoked
+
 > 🦋 error npm notice Access token expired or revoked. Please try logging in again.
 
 Obviously, you can add/refresh the token, but OIDC does not need a token.
 
 - check that OIDC is configured on npmjs.org
 
-> 🦋  error npm error 403 403 Forbidden - PUT https://registry.npmjs.org/@nl-design-system%2fmy-package - You cannot publish over the previously published versions: 1.0.0.
+#### E403 Forbidden - PUT
+
+> 🦋 error npm error 403 403 Forbidden - PUT https://registry.npmjs.org/@nl-design-system%2fmy-package - You cannot publish over the previously published versions: 1.0.0.
 
 - It is possible that the package was published and then unpublished.
   You will not be able to reuse that version and you have to bump the version.
@@ -35,15 +46,30 @@ Obviously, you can add/refresh the token, but OIDC does not need a token.
   Rerunning the job would then yield the above error.
   Inspect the first job to see if the actual publish succeeded.
 
-### Resources
+> E403: 403 Forbidden - PUT https://registry.npmjs.org/@nl-design-system%2fmy-package - Two-factor authentication is required to publish this package but an automation token was specified
 
-- [https://docs.npmjs.com/trusted-publishers](https://docs.npmjs.com/trusted-publishers)
-- [https://docs.github.com/en/actions/concepts/security/openid-connect](https://docs.github.com/en/actions/concepts/security/openid-connect)
+It is possible that OIDC was setup on npm, but the connection was not validated in time.
 
-## Git
+Whenever OIDC is setup for the first time for a package, a second publish is needed to validate the connection.
+This must be done in 48 hours.
+When this period expires without validation, this error may occur.
 
-### Possible errors
+#### Could not read Username
 
 > Error: fatal: could not read Username for '[https://github.com](https://github.com/)': terminal prompts disabled
 
 - Check that it is not overridden by an environment variable or secret. `GITHUB_TOKEN` is automatically passed by GitHub Actions with permissions as specified in the workflow file.
+
+#### The publish step runs but it doesn't actually try to publish
+
+> All files have been updated. Review them and commit at your leisure
+
+There might be a leftover changeset for a non-existing package or a private package in the `.changesets` folder.
+For example, this could happen if a package was later set to `"private": true` or removed.
+
+Ensure that changesets do not contain non-existing or private packages.
+
+### Resources
+
+- [https://docs.npmjs.com/trusted-publishers](https://docs.npmjs.com/trusted-publishers)
+- [https://docs.github.com/en/actions/concepts/security/openid-connect](https://docs.github.com/en/actions/concepts/security/openid-connect)

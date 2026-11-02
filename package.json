@@ -19,11 +19,14 @@
     "directory": "."
   },
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "skills:add": "skills add https://github.com/nl-design-system/beheer/tree/skills --global --agent cursor",
+    "skills:update": "skills update --global"
   },
   "devDependencies": {
     "js-yaml": "^4.1.1",
     "prettier": "^3.8.1",
+    "skills": "^1.7.4",
     "zod": "4.3.6"
   }
 }

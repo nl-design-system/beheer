@@ -1,0 +1,67 @@
+name: Nieuw npm package of OIDC instellen
+description: Vraag een eenmalige publish-token en/of OIDC trusted publishing aan voor een (nieuw) package
+title: "[npm publish]: "
+labels:
+  - npm
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gebruik dit formulier wanneer een package voor het eerst via CI moet publiceren, of wanneer OIDC trusted publishing nog moet worden ingericht.
+
+        Achtergrond:
+        - [Publiceren van npm packages](https://nldesignsystem.nl/handboek/developer/npm-publish/)
+        - [Trusted publishing (npm)](https://docs.npmjs.com/trusted-publishers)
+
+        Belangrijk: een nieuwe OIDC configuratie op npm moet binnen **48 uur** met een succesvolle publish worden gevalideerd.
+        Daarna verloopt de configuratie en moet die opnieuw worden aangemaakt.
+
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: Situatie
+      options:
+        - Package is nog niet gepubliceerd (eenmalige npm publish-token nodig, daarna OIDC configureren, en tweede publish zonder token)
+        - Package is al gepubliceerd (OIDC configureren, daarna publish ter validatie)
+    validations:
+      required: true
+
+  - type: textarea
+    id: packages
+    attributes:
+      label: Package-naam/namen
+      description: Exacte npm package-namen (één per regel)
+      placeholder: |
+        @nl-design-system-community/example-package
+    validations:
+      required: true
+
+  - type: input
+    id: repository
+    attributes:
+      label: GitHub-repository
+      placeholder: https://github.com/nl-design-system/example
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: todos
+    attributes:
+      label: Checklist (package is nog niet gepubliceerd)
+      description: Vink af wat al gedaan is; werk de rest bij in dit issue. Niet relevant als de package al gepubliceerd is.
+      options:
+        - label: "[aanvrager] Code is klaar om te publiceren (changeset/release-PR klaar)"
+        - label: "[maintainer] Eenmalige npm publish-token aangemaakt en als secret geconfigureerd in de GitHub Environment"
+        - label: "[maintainer] Aanvrager geïnformeerd dat de eerste publish kan starten"
+        - label: "[aanvrager] Eerste publish uitgevoerd"
+
+  - type: checkboxes
+    id: todos
+    attributes:
+      label: Checklist (package is al gepubliceerd)
+      description: Vink af wat al gedaan is; werk de rest bij in dit issue.
+      options:
+        - label: "[maintainer] Trusted publishing (OIDC) geconfigureerd op npmjs.org"
+        - label: "[maintainer] Aanvrager geïnformeerd dat de tweede publish kan starten binnen 48 uur"
+        - label: "[aanvrager] Tweede/validatie-publish uitgevoerd binnen 48 uur na OIDC-setup"
+        - label: "[aanvrager] Bevestigd dat de (tweede) publish via OIDC is gelukt en ticket gesloten"
